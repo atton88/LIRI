@@ -13,7 +13,7 @@ movie-this [movie title] - gives movie info
 [GitHub Profile](https://github.com/atton88/LIRI)
 
 # Images
-![About Me](CAPTURE.PNG)
+![LIRI](Capture.PNG)
 
 # technology used
 - Javascript
