@@ -4,6 +4,7 @@ var keys = require("./keys.js");
 var request = require("request");
 var Spotify = require("node-spotify-api");
 var moment = require("moment");
+var fs = require("fs");
 
 
 var spotify = new Spotify(keys.spotify);
@@ -11,17 +12,62 @@ var spotify = new Spotify(keys.spotify);
 var inputArr = process.argv;
 
 // Title
-console.log(" ██╗         ██╗    ██████╗     ██╗\n",
-            "██║         ██║    ██╔══██╗    ██║\n",
-            "██║         ██║    ██████╔╝    ██║\n",
-            "██║         ██║    ██╔══██╗    ██║\n",
-            "███████╗    ██║    ██║  ██║    ██║\n",
-            "╚══════╝    ╚═╝    ╚═╝  ╚═╝    ╚═╝\n")
-                                  
+console.log("\n ██╗         ██╗    ██████╗     ██╗\n",
+               "██║         ██║    ██╔══██╗    ██║\n",
+               "██║         ██║    ██████╔╝    ██║\n",
+               "██║         ██║    ██╔══██╗    ██║\n",
+               "███████╗    ██║    ██║  ██║    ██║\n",
+               "╚══════╝    ╚═╝    ╚═╝  ╚═╝    ╚═╝\n")
 
-// Concert-this argument, searches bandsintown for event details
-if (inputArr[2] === "concert-this") {
-    var artist = inputArr[3];
+start(inputArr);
+            
+function start(arr) {
+    // Concert-this argument, searches bandsintown for event details
+    if (arr[2] === "concert-this") {
+        concertThis(createString(arr));
+    }
+
+    // Spotify argument
+    else if (arr[2] === "spotify-this-song") {
+        if (arr[3]) {
+            var track = createString(arr);
+        } else {
+            var track = "The Sign ace of base";
+        }
+    spotifyThis(track);
+    }
+
+    // Movie-this argument
+    else if (arr[2] === "movie-this") {
+        if (arr[3]) {
+            var movie = createString(arr);       
+        } else {
+            var movie = "Mr. Nobody"; // Default case if no name in given
+        }
+    movieThis(movie);
+    }
+
+    // Do what it says argument
+    else if (arr[2] === "do-what-it-says") {
+        doThis();
+    }
+
+    else {
+        console.log("Invalid argument")
+    }
+}
+
+// removes first three arguments and creates string with the remaining
+function createString (arr) {
+     // Remove first 3 elements of arr
+     arr.shift(); 
+     arr.shift();
+     arr.shift();
+     return arr.join(" ");
+}
+
+// concert-this function gets event info
+function concertThis (artist) {
     var URL = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
     
     // API request
@@ -46,35 +92,30 @@ if (inputArr[2] === "concert-this") {
     })
 }
 
-// Spotify argument
-else if (inputArr[2] === "spotify-this-song") {
-
+// spotify-this-song function gets track info
+function spotifyThis(track) {
     spotify.search({
         type: "track",
-        query: createString(inputArr[3]),
+        query: track,
         limit: 1
     })
     .then (function(response){
         var songData = response.tracks.items[0];
         // console.log(songData);
         
+        console.log("---------------------------------------\n");
+        console.log("Song information for " + track + "\n");
+        console.log("---------------------------------------");
+
         console.log("Artist: " + songData.artists[0].name);
         console.log("Song Name: " + songData.name);
         console.log("Album: " + songData.album.name);
         console.log("Preview Link: " + songData.preview_url);
-        }
-    )
-
-
+        })
 }
 
-// Movie-this argument
-else if (inputArr[2] === "movie-this") {
-    if (inputArr[3]) {
-        movie = createString(inputArr);       
-    } else {
-       var movie = "Mr. Nobody"; // Default case if no name in given
-    }
+// movie-this function gets movie info
+function movieThis(movie) {
     console.log("---------------------------------------\n");
     console.log("Movie information for " + movie + "\n");
     console.log("---------------------------------------");    
@@ -98,18 +139,17 @@ else if (inputArr[2] === "movie-this") {
     })
 }
 
-// Do what it says
-else if (inputArr[2] === "do-what-it-says") {
-}
-
-else {
-    console.log("Invalid argument")
-}
-
-function createString (arr) {
-     // Remove first 3 elements of inputArr
-     inputArr.shift(); 
-     inputArr.shift();
-     inputArr.shift();
-     return inputArr.join(" ");
+// do-whatever-it-says function does what is contained in random.txt
+function doThis() {
+    fs.readFile("random.txt", "utf8", function(err, data) {
+        if (err) {
+            console.log(err);
+        } else {
+            var dataArr = data.split(",");
+            var arr = [0, 0, dataArr[0], dataArr[1]];
+            // console.log(arr);
+            start(arr);
+            // spotifyThis(dataArr[1]);
+        }
+    })
 }
