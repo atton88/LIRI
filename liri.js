@@ -83,9 +83,10 @@ function concertThis (artist) {
 
             // Prints out for every event
             for (var i = 0; i < data.length; i++) {
+                var date = moment(data[i].datetime, "YYYY-MM-DD").format("MM/DD/YYYY");
                 console.log("Name of venue: " + data[i].venue.name);
                 console.log("Location: " + data[i].venue.city);
-                console.log("Date of Event: " + data[i].datetime); //moment needed
+                console.log("Date of Event: " + date); //moment needed
                 console.log("---------------------------------------")
             }
         }
